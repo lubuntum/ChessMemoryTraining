@@ -18,7 +18,6 @@ import java.util.Random;
 public class FigureDistributor {
     private final Context context;
     private int difficult;
-
     private Map<Integer, Integer> figures ;
     private final Random random = new Random();
 
@@ -74,7 +73,18 @@ public class FigureDistributor {
     public void defaultFiguresInit(){
         figures = new HashMap<>();
         figures.put(R.drawable.black_pawn, 8);
-        /*...*/
+        figures.put(R.drawable.black_tower,2);
+        figures.put(R.drawable.black_horse,2);
+        figures.put(R.drawable.black_bishop,2);
+        figures.put(R.drawable.black_queen,1);
+        figures.put(R.drawable.black_king,1);
+
+        figures.put(R.drawable.white_pawn, 8);
+        figures.put(R.drawable.white_tower,2);
+        figures.put(R.drawable.white_horse,2);
+        figures.put(R.drawable.white_bishop,2);
+        figures.put(R.drawable.white_queen,1);
+        figures.put(R.drawable.white_king,1);
     }
 
     public int getDifficult() {

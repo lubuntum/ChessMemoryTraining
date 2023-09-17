@@ -1,11 +1,9 @@
 package com.example.chessmemory;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.chessmemory.action.SquareClick;
 import com.example.chessmemory.databinding.ChessBoardBinding;
 import com.example.chessmemory.dialogs.SettingsDialog;
 import com.example.chessmemory.figuredistribution.FigureDistributor;
@@ -24,8 +23,13 @@ import com.example.chessmemory.figuredistribution.FigureDistributor;
 import java.util.LinkedList;
 
 public class ChessGameFragment extends Fragment {
+    public enum ChessColor {
+        WHITE,
+        BLACK
+    }
     private ChessBoardBinding binding;
     private LinkedList<ImageView> squares = new LinkedList<>();
+    private SquareClick squareClick;
     FigureDistributor figureDistributor;
     public static ChessGameFragment getInstance(){
         ChessGameFragment fragment = new ChessGameFragment();
@@ -45,10 +49,12 @@ public class ChessGameFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         chessBoardInit(8,8,true);
         figureDistributorInit();
-        figureDistributor.distributeFigure(squares,8,8);
+        boardSquareClickListenerInit();
+
         settingsBtnInit();
     }
     private void chessBoardInit(int rowCount, int columnCount, boolean startColor){
+        /*Сгенерировать строку для черных*/
         binding.chessBoard.addView(rowCharGenerate(8, 'a', true));
         for(int row = 0; row < rowCount;row++){
             LinearLayout rowContainer = rowGenerate(columnCount, row+1, startColor);
@@ -56,6 +62,7 @@ public class ChessGameFragment extends Fragment {
             startColor = !startColor;
         }
         binding.chessBoard.addView(rowCharGenerate(8, 'a', false));
+        /*Сгенерировать строку для белых фигур*/
     }
     private LinearLayout rowGenerate(int squaresCount, int rowNumber, boolean isWhite){
         LinearLayout layout = new LinearLayout(getContext());
@@ -69,8 +76,14 @@ public class ChessGameFragment extends Fragment {
             ImageView square = new ImageView(getContext());
             square.setLayoutParams(new LinearLayout.LayoutParams(scalePixelsByScreen(35), scalePixelsByScreen(35)));
             square.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            if (isWhite) square.setBackgroundColor(whiteColor);
-            else square.setBackgroundColor(blackColor);
+            if (isWhite) {
+                square.setBackgroundColor(whiteColor);
+                square.setTag(ChessColor.WHITE);
+            }
+            else {
+                square.setBackgroundColor(blackColor);
+                square.setTag(ChessColor.BLACK);
+            }
             isWhite = !isWhite;
             square.setOnLongClickListener((view)->{
                 Toast.makeText(getContext(), "Click", Toast.LENGTH_LONG).show();
@@ -124,6 +137,11 @@ public class ChessGameFragment extends Fragment {
     }
     private void figureDistributorInit(){
         this.figureDistributor = new FigureDistributor(getContext(), 8, null);
+        figureDistributor.distributeFigure(squares,8,8);
+    }
+    private void boardSquareClickListenerInit(){
+        squareClick = new SquareClick(getContext());
+        squareClick.bondAllSquares(squares);
     }
 
     public void settingsBtnInit(){
