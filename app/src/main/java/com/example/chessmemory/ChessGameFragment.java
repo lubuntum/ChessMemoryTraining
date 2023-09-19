@@ -19,14 +19,11 @@ import com.example.chessmemory.action.SquareClick;
 import com.example.chessmemory.databinding.ChessBoardBinding;
 import com.example.chessmemory.dialogs.SettingsDialog;
 import com.example.chessmemory.figuredistribution.FigureDistributor;
+import com.example.chessmemory.gamesettings.GameBoardInfo;
 
 import java.util.LinkedList;
 
 public class ChessGameFragment extends Fragment {
-    public enum ChessColor {
-        WHITE,
-        BLACK
-    }
     private ChessBoardBinding binding;
     private LinkedList<ImageView> squares = new LinkedList<>();
     private SquareClick squareClick;
@@ -55,6 +52,7 @@ public class ChessGameFragment extends Fragment {
     }
     private void chessBoardInit(int rowCount, int columnCount, boolean startColor){
         /*Сгенерировать строку для черных*/
+        binding.chessBoard.addView(optionsRowGenerate(true));
         binding.chessBoard.addView(rowCharGenerate(8, 'a', true));
         for(int row = 0; row < rowCount;row++){
             LinearLayout rowContainer = rowGenerate(columnCount, row+1, startColor);
@@ -62,8 +60,10 @@ public class ChessGameFragment extends Fragment {
             startColor = !startColor;
         }
         binding.chessBoard.addView(rowCharGenerate(8, 'a', false));
+        binding.chessBoard.addView(optionsRowGenerate(false));
         /*Сгенерировать строку для белых фигур*/
     }
+    /*Метод генерирующий строчку для шахматной доски*/
     private LinearLayout rowGenerate(int squaresCount, int rowNumber, boolean isWhite){
         LinearLayout layout = new LinearLayout(getContext());
         layout.setLayoutParams(new LinearLayout.LayoutParams(
@@ -78,11 +78,11 @@ public class ChessGameFragment extends Fragment {
             square.setScaleType(ImageView.ScaleType.FIT_CENTER);
             if (isWhite) {
                 square.setBackgroundColor(whiteColor);
-                square.setTag(ChessColor.WHITE);
+                square.setTag(GameBoardInfo.ChessColor.WHITE);
             }
             else {
                 square.setBackgroundColor(blackColor);
-                square.setTag(ChessColor.BLACK);
+                square.setTag(GameBoardInfo.ChessColor.BLACK);
             }
             isWhite = !isWhite;
             square.setOnLongClickListener((view)->{
@@ -95,6 +95,7 @@ public class ChessGameFragment extends Fragment {
         layout.addView(rowNumberGenerate(rowNumber));
         return layout;
     }
+    /*Метод вставляющий вначало и конец строки ее номер*/
     private TextView rowNumberGenerate(int rowNumber){
         TextView rowNumberText = new TextView(getContext());
         LinearLayout.LayoutParams layoutParams =  new LinearLayout.LayoutParams(
@@ -108,6 +109,7 @@ public class ChessGameFragment extends Fragment {
 
         return rowNumberText;
     }
+    /*Метод для генерации символов сверху и снизу доски*/
     private LinearLayout rowCharGenerate(int charCount, char startChar, boolean isTop){
         LinearLayout layout = new LinearLayout(getContext());
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -134,6 +136,30 @@ public class ChessGameFragment extends Fragment {
     public int scalePixelsByScreen(int pixels){
         float scale = getContext().getResources().getDisplayMetrics().density;
         return (int)(pixels * scale + 0.5);
+    }
+    /*Генерация строки для выбора фигур, используется при расстановке*/
+    private LinearLayout optionsRowGenerate(boolean isWhite){
+        LinearLayout optionsRow = new LinearLayout(getContext());
+        optionsRow.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        optionsRow.setOrientation(LinearLayout.HORIZONTAL);
+        if(isWhite)
+            fullFillOptionsRow(optionsRow, GameBoardInfo.whiteFiguresRes);
+        else fullFillOptionsRow(optionsRow, GameBoardInfo.blackFiguresRes);
+        return optionsRow;
+    }
+    /*Метод для заполнения строки с выбором фигур*/
+    public void fullFillOptionsRow(LinearLayout optionsRow, int[] drawableRes){
+        for(int figure: drawableRes){
+            ImageView optionSquare = new ImageView(getContext());
+            optionSquare.setLayoutParams(new LinearLayout.LayoutParams(
+                    scalePixelsByScreen(35), scalePixelsByScreen(35)
+            ));
+            optionSquare.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            optionSquare.setImageDrawable(getContext().getResources().getDrawable(figure));
+            optionsRow.addView(optionSquare);
+        }
     }
     private void figureDistributorInit(){
         this.figureDistributor = new FigureDistributor(getContext(), 8, null);
