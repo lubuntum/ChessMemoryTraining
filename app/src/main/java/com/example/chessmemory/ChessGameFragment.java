@@ -15,18 +15,22 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.chessmemory.action.OptionsMenuClick;
 import com.example.chessmemory.action.SquareClick;
 import com.example.chessmemory.databinding.ChessBoardBinding;
 import com.example.chessmemory.dialogs.SettingsDialog;
 import com.example.chessmemory.figuredistribution.FigureDistributor;
 import com.example.chessmemory.gamesettings.GameBoardInfo;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class ChessGameFragment extends Fragment {
     private ChessBoardBinding binding;
     private LinkedList<ImageView> squares = new LinkedList<>();
     private SquareClick squareClick;
+    private OptionsMenuClick optionsMenuClick;
     FigureDistributor figureDistributor;
     public static ChessGameFragment getInstance(){
         ChessGameFragment fragment = new ChessGameFragment();
@@ -140,9 +144,11 @@ public class ChessGameFragment extends Fragment {
     /*Генерация строки для выбора фигур, используется при расстановке*/
     private LinearLayout optionsRowGenerate(boolean isWhite){
         LinearLayout optionsRow = new LinearLayout(getContext());
-        optionsRow.setLayoutParams(new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        optionsRow.setLayoutParams(layoutParams);
         optionsRow.setOrientation(LinearLayout.HORIZONTAL);
         if(isWhite)
             fullFillOptionsRow(optionsRow, GameBoardInfo.whiteFiguresRes);
@@ -151,6 +157,7 @@ public class ChessGameFragment extends Fragment {
     }
     /*Метод для заполнения строки с выбором фигур*/
     public void fullFillOptionsRow(LinearLayout optionsRow, int[] drawableRes){
+        List<ImageView> optionsSquares = new ArrayList<>();
         for(int figure: drawableRes){
             ImageView optionSquare = new ImageView(getContext());
             optionSquare.setLayoutParams(new LinearLayout.LayoutParams(
@@ -158,8 +165,12 @@ public class ChessGameFragment extends Fragment {
             ));
             optionSquare.setScaleType(ImageView.ScaleType.FIT_CENTER);
             optionSquare.setImageDrawable(getContext().getResources().getDrawable(figure));
+            optionSquare.setTag(figure);
+
             optionsRow.addView(optionSquare);
+            optionsSquares.add(optionSquare);
         }
+        optionsSquaresClickListenerInit(optionsSquares);
     }
     private void figureDistributorInit(){
         this.figureDistributor = new FigureDistributor(getContext(), 8, null);
@@ -168,6 +179,10 @@ public class ChessGameFragment extends Fragment {
     private void boardSquareClickListenerInit(){
         squareClick = new SquareClick(getContext());
         squareClick.bondAllSquares(squares);
+    }
+    private void optionsSquaresClickListenerInit(List<ImageView> options){
+        optionsMenuClick = new OptionsMenuClick(getContext());
+        optionsMenuClick.bondAllOptions(options);
     }
 
     public void settingsBtnInit(){
