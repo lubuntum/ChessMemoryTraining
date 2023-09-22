@@ -5,6 +5,8 @@ import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.appcompat.content.res.AppCompatResources;
+
 import com.example.chessmemory.ChessGameFragment;
 import com.example.chessmemory.R;
 import com.example.chessmemory.gamesettings.GameBoardInfo;
@@ -29,25 +31,30 @@ public class SquareClick {
                     previousSquare
                             .setBackgroundColor(whiteColor);
                 else previousSquare.setBackgroundColor(blackColor);
+                if(OptionsMenuClick.pickedFigure != 0)
+                    ((ImageView)view).setImageDrawable(AppCompatResources.getDrawable(context, OptionsMenuClick.pickedFigure));
+                else ((ImageView) view).setImageDrawable(null);
                 if(view.equals(previousSquare)) {
                     previousSquare = null;
                     return;
                 }
                 view.setBackgroundColor(clickColor);
             }
-
+            else {
+                if (OptionsMenuClick.pickedFigure != 0)
+                    ((ImageView) view).setImageDrawable(AppCompatResources.getDrawable(context, OptionsMenuClick.pickedFigure));
+                else ((ImageView) view).setImageDrawable(null);
+            }
             view.setBackgroundColor(clickColor);
             previousSquare =  view;
             //view.setPadding(10,10,10,10);
         };
     }
     public void bondAllSquares(List<ImageView> squares){
-        for(ImageView square: squares)
-            square.setOnClickListener(squareListener);
+        squares.forEach((s)->s.setOnClickListener(squareListener));
     }
-    public void unbondAllSquares(List<ImageView> squares){
-        for(ImageView square: squares)
-            square.setOnClickListener(null);
+    public void unBoundAllSquares(List<ImageView> squares){
+        squares.forEach((s)->s.setOnClickListener(null));
     }
 
 }
